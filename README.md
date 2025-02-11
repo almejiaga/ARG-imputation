@@ -23,7 +23,7 @@ CHR	POS	ID	REF	ALT	nHet	nHomAlt	nHomRef	HetSamples	HomSamplesAlt	HomSamplesRef
 
 After pre-processing the VCF file, it can be used as input along with the ARG file to perform genotype imputation. In addition, you will need a dictionary file between node IDs and your sample IDs (the default is the dictionary I have for the ARGs from CARTaGENE)
 
-python ARG-imputation.py
+python ARG_imputation.py
 
 This script will output a file containing two columns: sample IDs and posterior probability of being a carrier (from 0 to 1, check methods for details)
 ```
