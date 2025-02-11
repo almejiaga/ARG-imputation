@@ -19,7 +19,7 @@ The expected output:
 CHR	POS	ID	REF	ALT	nHet	nHomAlt	nHomRef	HetSamples	HomSamplesAlt	HomSamplesRef
 12	57763698	chr12_57763698_T_TGGGTGGG	T	TGGGTGGG	2	0	2170	Sample_1,Sample_2  Sample_3,sample_4  Sample_5		
 ```
-#Performing ARG-imputation
+# Performing ARG-imputation
 
 After pre-processing the VCF file, it can be used as input along with the ARG file to perform genotype imputation. In addition, you will need a dictionary file between node IDs and your sample IDs (the default is the dictionary I have for the ARGs from CARTaGENE)
 
