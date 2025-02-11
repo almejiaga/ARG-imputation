@@ -12,13 +12,31 @@ For detailsa about how to obtain an ARG from a VCF file, please check this repos
 To performe the ARG-imputation, we need a set of carriers to use as input. I prepared a bash script that uses bcftools to get a list of homozygous for the reference allele, heterozygous and homozygous for the alternative allele from a VCF file. Run the script in the following way:
 
 bash preprocessingvcf.sh $vcffile
+
 The expected output:
 
 ```
 CHR	POS	ID	REF	ALT	nHet	nHomAlt	nHomRef	HetSamples	HomSamplesAlt	HomSamplesRef
 12	57763698	chr12_57763698_T_TGGGTGGG	T	TGGGTGGG	2	0	2170	Sample_1,Sample_2  Sample_3,sample_4  Sample_5		
 ```
-# 
+#Performing ARG-imputation
+
+After pre-processing the VCF file, it can be used as input along with the ARG file to perform genotype imputation. In addition, you will need a dictionary file between node IDs and your sample IDs (the default is the dictionary I have for the ARGs from CARTaGENE)
+
+python ARG-imputation.py
+
+This script will output a file containing two columns: sample IDs and posterior probability of being a carrier (from 0 to 1, check methods for details)
+```
+row ID_2	posterior
+1	1	1.0
+2	2	1.0
+3	3	1.0
+4	4	1.0
+```
+#Dependencies for running this repository
+BCFTOOLS
+
+
 
 
 
