@@ -23,7 +23,17 @@ CHR	POS	ID	REF	ALT	nHet	nHomAlt	nHomRef	HetSamples	HomSamplesAlt	HomSamplesRef
 
 After pre-processing the VCF file, it can be used as input along with the ARG file to perform genotype imputation. In addition, you will need a dictionary file between node IDs and your sample IDs (the default is the dictionary I have for the ARGs from CARTaGENE)
 
-python ARG_imputation.py
+python ARG_imputation.py --chr 7 --variant $variant_id --hets $pre-processed_file  --ts $path_to_arg_.trees --dictionary $dictionary_correspondance --map_file $map_used_for_arg_inference
+
+--variant: the variant ID, as stored in the VCF file
+
+--hets: output file of the pre-processed vcf file
+
+--ts: path to the ARG file for that chromosome in .trees format (ts kit format)
+
+--dictionary: dictionary from the ARG leaves to the actual sample IDs (ARG needle by default renames from 0 to 2N samples)
+
+--map_file: map used to generate the ARG, to perform start correction
 
 This script will output a file containing two columns: sample IDs and posterior probability of being a carrier (from 0 to 1, check methods for details)
 ```
