@@ -180,12 +180,11 @@ def main_pipeline(finaldf, tree, node_of_interest):
     return df
     
 
-def main(chromosome, variant):
+def main(chromosome, variant, dictionary_file, hets_file, ts_file, map_file):
     base_path = "/lustre06/project/6068353/almejiaga/projects/Founder_score/results/"
     cartagene_path = "/lustre06/project/6068353/almejiaga/cartagenegenotypedata/VCFs_2/ARG_files/"
 
     # Load chromosome-specific data
-    hets_file = f"{base_path}data/processed/hetsids/homhetimputeddata_chr{chromosome}.txt"
     df = pd.read_csv(hets_file, comment="#", sep="\t", header=0)
 
     # Select relevant columns
@@ -199,17 +198,15 @@ def main(chromosome, variant):
     finaldf['all_hom_samples'] = finaldf['HomSamplesRef'].apply(extract_numbers)
     finaldf['all_carriers'] = finaldf['HetSamples'].apply(extract_numbers)
     # Read the file into a DataFrame
-    dictionary = pd.read_csv('/lustre06/project/6068353/almejiaga/projects/Founder_score/results/data/raw/dictionary_args.txt', delim_whitespace=True)
+    dictionary = pd.read_csv(dictionary_file, delim_whitespace=True)
 
     #checking the clusters
     #reading the csv metadata from alex
     metadata = pd.read_csv('~/projects/ctb-sgravel/cartagene/research/quebec_structure_936028/Alex_CaG-UMAP-clusters/cartagene_clusters_eth_cob.csv', comment="#", sep=",", header=0)
     # Load ARG tree
-    ts_file = f"{cartagene_path}chr{chromosome}_final.trees"
     ts = tskit.load(ts_file)
 
     # Load position correction map
-    map_file = f"{cartagene_path}chr{chromosome}_corrected.map"
     MAP = pd.read_csv(map_file, delim_whitespace=True, header=None)
     correction_value = MAP.iloc[0, 3]
 
@@ -433,6 +430,7 @@ def main(chromosome, variant):
     # Assuming merged_df3 is your dataframe and it contains columns 'Cluster' and 'posterior'
     # Group by 'Cluster' and compute mean posterior value
     cluster_posterior_stats = merged_df3['posterior'].sum()
+    #cluster_posterior_stats.to_csv(f'posterior_{variant}.csv', index=False)
 
     # Optionally, you can compute other statistics such as median, standard deviation, etc.
     # cluster_posterior_median = merged_df3.groupby('Cluster')['posterior'].median()
@@ -453,11 +451,31 @@ def main(chromosome, variant):
     subset_non_zero_posterior_final.to_csv(f'posterior_{variant}.csv', index=False)
     frequency_table = merged_df3['cluster'].value_counts()
     print(frequency_table)
+    # Group by 'cluster' and sum 'posterior'
+    posterior_sums = subset_non_zero_posterior.groupby('cluster')['posterior'].sum()
+
+    # Extract values
+    carrier_frequency_slsj = posterior_sums.get(13.0, 0) / 2599  # Divide cluster 13.0 by 2599
+    frequency_rest_qc = (posterior_sums.drop(13.0, errors='ignore').sum()) / 26738  # Sum others and divide by 26738
+
+    # Create DataFrame
+    freq_df = pd.DataFrame({
+        "Region": ["Carrier Frequency in SLSJ", "Frequency Rest of Quebec"],
+        "Frequency": [carrier_frequency_slsj, frequency_rest_qc]
+    })
+
+    # Save to CSV
+    freq_df.to_csv(f'frequency_{variant}.csv', index=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Pipeline for analyzing SACs with ARG integration.")
     parser.add_argument("--chr", required=True, type=int, help="Chromosome number (1-22).")
     parser.add_argument("--variant", required=True, help="Variant in format chrX_POS_REF_ALT (e.g., chr8_19954279_C_T).")
+    parser.add_argument("--dictionary", required=True, help="Path to the dictionary file.")
+    parser.add_argument("--hets", required=True, help="Path to the file with the carriers data.")
+    parser.add_argument("--ts", required=True, help="Path to the tree sequence file.")
+    parser.add_argument('--map_file', type=str, required=True, help='Path to the map file')
 
+    
     args = parser.parse_args()
-    main(args.chr, args.variant)
+    main(args.chr, args.variant, args.dictionary, args.hets, args.ts, args.map_file)
